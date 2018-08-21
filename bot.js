@@ -1,6 +1,19 @@
 var Discord = require('discord.io');
 var logger = require('winston');
 var auth = require('./auth.json');
+import { Game } from './game.js';
+
+//var game = require('./game.js');
+
+/*class game{
+
+    constructor(){
+        this.numberOfPlayers = 7;
+    }
+}*/
+
+var newgame = new Game();
+
 // Configure logger settings
 logger.remove(logger.transports.Console);
 logger.add(new logger.transports.Console, {
@@ -32,10 +45,18 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     to: channelID,
                     message: 'welcome my dude'
                 });
+            break;
             case 'chad':
                 bot.sendMessage({
                     to: channelID,
                     message: '' + user + ' is a chad'
+                });
+            break;
+            case 'new-game':
+                //this.newgame = new game();
+                bot.sendMessage({
+                    to: channelID,
+                    message: 'Game created!'
                 });
             break;
             // Just add any case commands if you want to..
