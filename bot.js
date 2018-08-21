@@ -34,7 +34,7 @@ function makeGame(numberOfPlayers, entry, channelID){
     });
     bot.sendMessage({
         to: channelID,
-        message: 'Current players: @' + newgame.players[0] + ''
+        message: 'Current players: <@' + newgame.players[0] + '>'
     });
 }
 
@@ -56,14 +56,13 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 });
             break;
             case 'chad':
-                this.myuser = bot.users[userID];
                 bot.sendMessage({
-                    to: userID,
-                    message: `CHAD DETECTED! <@${this.myuser.id}> is a chad!`
+                    to: channelID,
+                    message: "CHAD DETECTED! <@" + userID + "> is a chad!"
                 });
             break;
             case 'new-game':
-                makeGame(args[1], user, channelID);
+                makeGame(args[1], userID, channelID);
                 /*bot.sendMessage({
                     to: channelID,
                     message: 'Game created with ' + this.newgame.numberOfPlayers + ' players!'
