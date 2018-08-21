@@ -1,0 +1,11 @@
+{
+    "name": "chad-bot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "bot.js",
+    "author": "Womble",
+    "dependencies": {
+        "discord.io": "https://github.com/woor/discord.io/tarball/gateway_v6",
+        "winston": "^3.0.0"
+    }
+}
