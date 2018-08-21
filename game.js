@@ -1,6 +1,7 @@
 export class Game{
 
-	constructor(){
-		this.numberOfPlayers = 7;
+	constructor(numberOfPlayers, entry){
+		this.numberOfPlayers = numberOfPlayers;
+		this.players = [entry];
 	}
 }
