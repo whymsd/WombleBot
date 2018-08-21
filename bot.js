@@ -26,18 +26,6 @@ bot.on('ready', function (evt) {
     logger.info(bot.username + ' - (' + bot.id + ')');
 });
 
-function makeGame(numberOfPlayers, entry, channelID){
-    newgame = new Game(numberOfPlayers, entry);
-    bot.sendMessage({
-        to: channelID,
-        message: 'Game created with ' + newgame.numberOfPlayers + ' players!'
-    });
-    bot.sendMessage({
-        to: channelID,
-        message: 'Current players: <@' + newgame.players[0] + '>'
-    });
-}
-
 bot.on('message', function (user, userID, channelID, message, evt) {
     // Our bot needs to know if it will execute a command
     // It will listen for messages that will start with `!`
@@ -61,14 +49,63 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     message: "CHAD DETECTED! <@" + userID + "> is a chad!"
                 });
             break;
-            case 'new-game':
+            case 'newgame':
                 makeGame(args[1], userID, channelID);
                 /*bot.sendMessage({
                     to: channelID,
                     message: 'Game created with ' + this.newgame.numberOfPlayers + ' players!'
                 });*/
             break;
-            // Just add any case commands if you want to..
-         }
+            case 'addme':
+                addPlayer(userID, channelID);
+                /*bot.sendMessage({
+                    to: channelID,
+                    message: `Current players: ${for} ` + '(' + newgame.players.length + "/" + newgame.numberOfPlayers + ")"
+                });*/
+                printPlayerList(channelID);    
+            break;
+        }
      }
 });
+
+
+
+function makeGame(mode, entry, channelID){
+    newgame = new Game(mode, entry);
+    bot.sendMessage({
+        to: channelID,
+        message: 'Game mode: ' + newgame.mode
+    });
+    printPlayerList(channelID);
+}
+
+function addPlayer(userID, channelID){
+    var exists = 0;
+    var i = 0;
+    for(i; i<newgame.players.length; i++){
+        if(newgame.players[i] = userID){
+            exists = 1;
+        }
+    }
+    if(!exists){
+        newgame.players.push(userID);
+    }
+    else{
+        bot.sendMessage({
+            to: channelID,
+            message: "Player is already entered into the game!"
+        });
+    }
+}
+
+function printPlayerList(channelID){
+    var outie = "Current players: <@" + newgame.players[0] + ">";
+    var i;
+    for(i=1; i<newgame.players.length; i++){
+        outie += ", <@" + newgame.players[i] + ">";
+    }
+    bot.sendMessage({
+        to: channelID,
+        message: outie + ' (' + newgame.players.length + "/" + newgame.numberOfPlayers + ")"
+    });
+}
