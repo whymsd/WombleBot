@@ -62,6 +62,16 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 setTimeout(function(){addPlayer(8, channelID)}, 6000);
                 setTimeout(function(){addPlayer(110, channelID)}, 7000);    
             break;
+            /*case 'calctest':
+                var i;
+                for(i =0; i < 10; i++){
+                    var j = Math.floor(Math.random() * 7);
+                    console.log(j);
+                }
+            break;*/
+            case 'vote':
+                voteHandler(userID, args[1]);
+            break;
         }
      }
 });
@@ -97,13 +107,24 @@ function addPlayer(userID, channelID){
     }
     printPlayerList(channelID);
     if(newgame.playerIDs.length == newgame.numberOfPlayers){
-        bot.sendMessage({
-            to: channelID,
-            message: "Game Starting!"
-        });
+        setTimeout(function(){
+            bot.sendMessage({
+                to: channelID,
+                message: "Game Starting!"
+            });
+        }, 1000);
         newgame.startGame();
         giveRoles();
     }
+}
+
+function genPlayerList(){
+    var outie = "Current players: <@" + newgame.players[0].ID + ">";
+    var i;
+    for(i=1; i<newgame.players.length; i++){
+        outie += ", <@" + newgame.players[i].ID + ">";
+    }
+    return outie;
 }
 
 function printPlayerList(channelID){
@@ -128,12 +149,53 @@ function giveRoles(){
     }
 }
 
-exports.intro = function(cha){
-    console.log("Well it makes it here; " + cha);
+function idParse(tag){
+    var first = tag.split("<@");
+    //console.log(first);
+    var second = first[1].split(">");
+    //console.log(second);
+    return second[0];
+}
+
+function voteHandler(voteID, votetag){
+    function getPlayer(mp){
+        return mp.ID === voteID;
+    }
+    var voter = newgame.players.find(getPlayer);
+    if (voter.vote!=0){
+        voteID = voter.vote;
+        var unvote = newgame.players.find(getPlayer);
+        unvote.votes--;
+    }
+    voteID = idParse(votetag);
+    voter.vote = voteID;
+    var votedPlayer = newgame.players.find(getPlayer);
+    votedPlayer.votes++;
+    if(votedPlayer.votes >= newgame.voteThreshhold){
+        // TODO: KICK PLAYER FROM GAME
+    }
+    bot.sendMessage({
+        to: gameChannel,
+        message: "<@" + voter.ID + "> has voted for <@" + votedPlayer.ID +  ">! <@" + votedPlayer.ID +  "> has " + votedPlayer.votes + " vote to lynch them!"
+    })
+}
+
+exports.introMessage = function(cha){
+    //console.log("sending intro message, " + cha);
+    bot.sendMessage({
+        to: cha,
+        message: "Hello and welcome to Chadville! The citizens of the town have enjoyed a peaceful life, however in the darkness evil begins to stir as a local group of hooligans set out to take over the village..."
+    });
+}
+
+exports.dayMessage = function(cha, day){
+    //console.log("sending day message, " + cha);
+    var playerStr = genPlayerList();
     setTimeout(function(){
         bot.sendMessage({
             to: cha,
-            message: "WE IN THIS GAME BITCHES WOOOOOOOOOOO"
+            message: "Day " + day + " begins!\nPlayers left alive: " + playerStr
         });
     }, 1000);
+    newgame.startDay();
 }

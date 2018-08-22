@@ -17,13 +17,14 @@ export class Game{
 		this.daycount = 1;
 		this.time = "DAY";
 		this.gameChannel =  gameChannel;
+		this.voteThreshhold = 0;
 	}
 
 	startGame(){
 		//console.log("Mode is: " + this.mode); - WORKS
 		switch(this.mode){
 			case 'standard':
-				this.roles=["Villager", "Villager", "Villager", "Mafioso", "Mafioso", "Detective", "Doctor"];
+				this.roles=["Doctor", "Detective", "Mafioso", "Mafioso", "Villager", "Villager", "Villager"];
 				this.align=["Town", "Town", "Town", "Mafia", "Mafia", "Town", "Town"];
 			break;
 		}
@@ -31,16 +32,17 @@ export class Game{
 		var i;
 		for(i = 0; this.playerIDs.length>0; i++){
 			var j = Math.floor(Math.random() * (this.playerIDs.length));
-			//console.log(j + ", " + this.playerIDs[j] + ", " + this.roles[i]);
-			this.players.push(new Player(this.playerIDs[j], this.roles[i], this.align[i]));
-			//console.log(this.players[i].role + " + " + this.players[i].ID);
-			this.playerIDs.splice(j, 1);
+			this.players.push(new Player(this.playerIDs[0], this.roles[j], this.align[j]));
+			this.playerIDs.splice(0, 1);
+			this.roles.splice(j, 1);
+			this.align.splice(j, 1);
 		}
-		console.log(this.gameChannel);
-		this.startDay();
+		//console.log(this.gameChannel);
+		setTimeout(botman.introMessage, 3000, this.gameChannel);
+		setTimeout(botman.dayMessage, 5000, this.gameChannel, this.daycount);
 	}
 
 	startDay(){
-		botman.intro(this.gameChannel);
+		this.voteThreshhold = this.players.length;
 	}
 }
