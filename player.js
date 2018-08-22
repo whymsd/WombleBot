@@ -11,6 +11,6 @@ export class Player{
 	}
 
 	voting(v){
-		console.log(v);
+		//vote = 
 	}
 }
