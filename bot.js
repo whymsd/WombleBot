@@ -72,6 +72,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             case 'vote':
                 voteHandler(userID, args[1]);
             break;
+            case 'showvotes':
+                voteList();
+            break;
         }
      }
 });
@@ -165,19 +168,84 @@ function voteHandler(voteID, votetag){
     if (voter.vote!=0){
         voteID = voter.vote;
         var unvote = newgame.players.find(getPlayer);
-        unvote.votes--;
+        //unvote.votes--;                                   PLEASE FIX THIS TO MAKE SURE VOTES WORK!
     }
     voteID = idParse(votetag);
     voter.vote = voteID;
     var votedPlayer = newgame.players.find(getPlayer);
     votedPlayer.votes++;
+    bot.sendMessage({
+        to: gameChannel,
+        message: "<@" + voter.ID + "> has voted for <@" + votedPlayer.ID +  ">! Number of votes on <@" + votedPlayer.ID +  ">: " + votedPlayer.votes
+    });
     if(votedPlayer.votes >= newgame.voteThreshhold){
-        // TODO: KICK PLAYER FROM GAME
+        newgame.lynch(voteID);
+        bot.sendMessage({
+            to: gameChannel,
+            message: "<@" + votedPlayer.ID +  "> now exceeds the number of votes needed for a lynch, and will be lynched!\n<@" + votedPlayer.ID + "> is brought into the centre of the town square. As they are executed by their fellow citizens, their role was revealed to be..."
+        });
+        setTimeout(function(){
+            bot.sendMessage({
+                to: gameChannel,
+                message: votedPlayer.role + "!"
+            });
+        }, 2000);
+        setTimeout(nightMessage, 5000);
+    }
+}
+
+function voteList(){
+    var outie = "";
+    outie += "Votes needed to lynch: " + newgame.voteThreshhold;
+    //Sort algo for votes
+    var i;
+    var j;
+    var tmpArray = newgame.players;
+    for(i = 0; i < (tmpArray.length - 1); i++){
+        while(!tmpArray[i].votes){
+            //console.log("Current ID iter: " + tmpArray[i].ID + ", " + tmpArray[i].votes);
+            tmpArray.splice(i, 1);
+            if(i >= tmpArray.length){break;}
+        }
+        for(j = 1; j < tmpArray.length; j++){
+            if(tmpArray[j].votes > tmpArray[i].votes){
+                var swap = tmpArray[j];
+                tmpArray[j] = tmpArray[i];
+                tmpArray[i] = swap;
+            }
+        }
+    }
+    console.log(j); //TEST TO SEE CAN I MAKE THIS A BIT QUICKER BY GETTING RID OF CUT
+    if(tmpArray.length > 0){
+        var cut = (tmpArray.length - 1);
+        if(tmpArray[cut].votes == 0){
+            tmpArray.splice(cut, 1);
+        }
+    }
+    for(i = 0; i < tmpArray.length; i++){
+        outie += "\n<@" + tmpArray[i].ID +">: " + tmpArray[i].votes + " (";
+        for(j = 0; j < newgame.players.length; j++){
+            //if(tmpArray[i].ID != newgame.players[j].ID){
+                if(tmpArray[i].ID == newgame.players[j].vote){
+                    outie += "<@" + newgame.players[j].ID + ">, ";
+                }
+            //}
+        }
+        outie += ")";
     }
     bot.sendMessage({
         to: gameChannel,
-        message: "<@" + voter.ID + "> has voted for <@" + votedPlayer.ID +  ">! <@" + votedPlayer.ID +  "> has " + votedPlayer.votes + " vote to lynch them!"
-    })
+        message: outie
+    });
+}
+
+function nightMessage(){
+    var playerStr = genPlayerList();
+    bot.sendMessage({
+        to: newgame.gameChannel,
+        message: "Night " + newgame.daycount + " begins!\n" + playerStr
+    });
+    newgame.startNight();
 }
 
 exports.introMessage = function(cha){
@@ -194,8 +262,12 @@ exports.dayMessage = function(cha, day){
     setTimeout(function(){
         bot.sendMessage({
             to: cha,
-            message: "Day " + day + " begins!\nPlayers left alive: " + playerStr
+            message: "Day " + day + " begins!\n" + playerStr
         });
     }, 1000);
     newgame.startDay();
+}
+
+exports.noLynchMessage = function(cha){
+    //
 }

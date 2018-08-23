@@ -18,6 +18,7 @@ export class Game{
 		this.time = "DAY";
 		this.gameChannel =  gameChannel;
 		this.voteThreshhold = 0;
+		this.lynchstat = 0;
 	}
 
 	startGame(){
@@ -25,7 +26,7 @@ export class Game{
 		switch(this.mode){
 			case 'standard':
 				this.roles=["Doctor", "Detective", "Mafioso", "Mafioso", "Villager", "Villager", "Villager"];
-				this.align=["Town", "Town", "Town", "Mafia", "Mafia", "Town", "Town"];
+				this.align=["Town", "Town", "Mafia", "Mafia", "Town", "Town", "Town"];
 			break;
 		}
 		//console.log("Roles are: " + this.roles); - WORKS
@@ -43,6 +44,42 @@ export class Game{
 	}
 
 	startDay(){
-		this.voteThreshhold = this.players.length;
+		this.lynchstat = 0;
+		this.voteThreshhold = this.players.length / 2;
+		console.log(this.voteThreshhold);
+		this.voteThreshhold = Math.ceil(this.voteThreshhold);
+		//this.botman
 	}
+
+	lynch(lynchID){
+		var i = 0;
+		while (this.players[i].ID != lynchID){
+			i++;
+		}
+		this.players.splice(i, 1);
+		this.voteThreshhold = this.players.length / 2;
+		this.lynchstatus = 1;
+		this.checkMafWin(); 
+	}
+
+	startNight(){
+		console.log("NIGHT TIME BABYYYYYYYYY");
+	}
+
+	checkMafWin(){
+		var counter = 0;
+		var i;
+		for(i = 0; i < this.players.length; i++){
+			if(this.players[i].align === "Mafia"){
+				counter++;
+			}
+		}
+		if(counter >= this.voteThreshhold){
+			// EXECUTE MAFIA VICTORY
+		}
+		else{
+			//console.log("Maf count = " + counter);
+		}
+	}
+
 }
