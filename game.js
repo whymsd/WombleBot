@@ -1,6 +1,7 @@
 var botman = require('./bot.js');
 
 import { Player } from './player.js';
+import { Action } from './action.js';
 
 export class Game{
 
@@ -19,6 +20,7 @@ export class Game{
 		this.gameChannel =  gameChannel;
 		this.voteThreshhold = 0;
 		this.lynchstat = 0;
+		this.actions = [];
 	}
 
 	startGame(){
@@ -44,11 +46,13 @@ export class Game{
 	}
 
 	startDay(){
+		this.time="DAY";
 		this.lynchstat = 0;
+		this.actions=[];
 		this.voteThreshhold = this.players.length / 2;
 		console.log(this.voteThreshhold);
 		this.voteThreshhold = Math.ceil(this.voteThreshhold);
-		setTimeout(botman.noLynchMessage, 60000);
+		setTimeout(botman.noLynchMessage, 60000, this.lynchstat);
 	}
 
 	lynch(lynchID){
@@ -59,12 +63,14 @@ export class Game{
 		this.players.splice(i, 1);
 		this.voteThreshhold = this.players.length / 2;
 		this.lynchstat = 1;
-		this.checkMafWin(); 
+		this.checkMafWin();
+		setTimeout(botman.nightMessageEx, 5000); 
 	}
 
 	startNight(){
 		this.time="NIGHT";
 		this.daycount++;
+		setTimeout(botman.actionCaller, 30000);
 	}
 
 	checkMafWin(){
@@ -80,6 +86,62 @@ export class Game{
 		}
 		else{
 			//console.log("Maf count = " + counter);
+		}
+	}
+
+	addAction(act, user, subj, prio){
+		var i;
+		for(i = 0; i < this.actions.length; i++){
+			//console.log("action looping")
+			if(this.actions[i].doer = user){
+				this.actions.splice(i, 1);
+				i--;
+				//console.log("Got rid of a thing");
+			}
+		}
+		//console.log("Adding action type " + act);
+		var index = findPlayer(user);
+		if(this.players[index].ID === type){
+			this.actions.push(new Action(act, user, subj, prio));
+		}
+		else{
+			botman.genericPrint(this.user, "Your role cannot perform that action!")
+		}
+	}
+
+	actionResolve(){
+		var i;
+		var j;
+		for (i = 0; i < (this.actions.length - 1); i++){
+			for(j = 1; j < this.actions.length; j++){
+				if(this.actions[i].prio > this.actions[j].prio){
+					var tmp = this.actions[i];
+					this.actions[i] = this.actions[j];
+					this.actions[j] = tmp;
+				}
+			}
+			var doing = this.actions[i].type;
+			switch(doing){
+				case 'Mafia':
+						console.log("SNEAKY SNEAKY");
+				break;
+				case 'Detective':
+						console.log("WHODUNNIT");
+				break;
+				case 'Doctor':
+						console.log("VALKYRIE ONLINE");
+				break;
+			}
+		}
+		setTimeout(botman.dayMessage, 30000, this.gameChannel, this.daycount);
+	}
+
+	findPlayer(id){
+		var i;
+		for(i = 0; i < this.players.length; i++){
+			if(this.players[i].ID = id){
+				return i;
+			}
 		}
 	}
 

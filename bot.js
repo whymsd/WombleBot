@@ -77,7 +77,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             break;
             case 'kill':
                 if(newgame.time==="NIGHT"){
-                    //KILL ACTION
+                    var subj = idParse(args[1]);
+                    newgame.addAction("Mafia", userID, subj, 2); //GOES FIRST
                 }
                 else{
                     wrongPerms(channelID);
@@ -85,15 +86,17 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             break;
             case 'investigate':
                 if(newgame.time==="NIGHT"){
-                    //KILL ACTION
+                    var subj = idParse(args[1]);
+                    newgame.addAction("Detective", userID, subj, 3);
                 }
                 else{
                     wrongPerms(channelID);
                 }
             break;
-            case 'save':
+            case 'heal':
                 if(newgame.time==="NIGHT"){
-                    //KILL ACTION
+                    var subj = idParse(args[1]);
+                    newgame.addAction("Doctor", userID, subj, 1);
                 }
                 else{
                     wrongPerms(channelID);
@@ -106,7 +109,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
 function wrongPerms(cha){
     bot.sendMessage({
         to: cha,
-        message: "You do not have permission to perform this action!"
+        message: "You do not have permission to perform this action during the day!"
     });
 }
 
@@ -208,7 +211,6 @@ function voteHandler(voteID, votetag){
         message: "<@" + voter.ID + "> has voted for <@" + votedPlayer.ID +  ">! Number of votes on <@" + votedPlayer.ID +  ">: " + votedPlayer.votes
     });
     if(votedPlayer.votes >= newgame.voteThreshhold){
-        newgame.lynch(voteID);
         bot.sendMessage({
             to: gameChannel,
             message: "<@" + votedPlayer.ID +  "> now exceeds the number of votes needed for a lynch, and will be lynched!\n<@" + votedPlayer.ID + "> is brought into the centre of the town square. As they are executed by their fellow citizens, their role was revealed to be..."
@@ -219,7 +221,8 @@ function voteHandler(voteID, votetag){
                 message: votedPlayer.role + "!"
             });
         }, 2000);
-        setTimeout(nightMessage, 5000);
+        newgame.lynch(voteID);
+        //setTimeout(nightMessage, 5000);
     }
 }
 
@@ -277,6 +280,10 @@ function nightMessage(){
     newgame.startNight();
 }
 
+exports.nightMessageEx = function(){
+    nightMessage();
+}
+
 exports.introMessage = function(cha){
     //console.log("sending intro message, " + cha);
     bot.sendMessage({
@@ -297,7 +304,8 @@ exports.dayMessage = function(cha, day){
     newgame.startDay();
 }
 
-exports.noLynchMessage = function(cha){
+exports.noLynchMessage = function(cha, status){
+    console.log(newgame.lynchstat + " is our current lynchstat");
     if(!newgame.lynchstat){
         bot.sendMessage({
             to: newgame.gameChannel,
@@ -308,4 +316,15 @@ exports.noLynchMessage = function(cha){
     else{
         console.log("hell yeah we lynched");
     }
+}
+
+exports.actionCaller = function(){
+    newgame.actionResolve();
+}
+
+exports.genericPrint = function(cha, strIn){
+    bot.sendMessage({
+        to: cha,
+        message: strIn
+    });
 }

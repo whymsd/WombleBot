@@ -1,23 +1,26 @@
 # WombleBot
 Little Discord bot I'm going to try work on. Plays Mafia (or it will when it works).
 
-### TO ADD TO A SERVER, ENTER:
-https://discordapp.com/oauth2/authorize?&client_id=481258966949691393&scope=bot&permissions=8 (Will not work without authorization)
+### TO ADD TO A SERVER, MESSAGE ME ;)
 
 ### LIST OF TASKS TODO:
 Immediate
-- Lynch when correct amount of votes are met
-- Implement a day timer
+- NOT WORKING: Fix PM's to CHAD with actions (will likely require player class overhaul zzz)
+- Implement night action effects on game state
+- Sort win conditions
 
 Long-term
-- Start implementing night mechanics (and finish)
-- Change chat permissions for the mafia chats
+- Chat perms for players (voice and text)
+- Error checking (List below)
+- Get people to test!
 
-Finishing touches
-- Code against bad commands/error management
-- RELEASE!!!
+Test state changes I will have to revert:
+- !addme currently adds a bunch of meaningless tags, want to return this to the "add player" function
+- game timers too short
+- Have to stop votes from stacking
 
-Reverts/fixes for release:
-- addme command
-- fix votes so they change rather than stack
-- cant start a game when a game already exists
+Errors/Issues:
+- Reset votes every day (ABSOLUTE STRESS)
+- Sometimes the program ints randomly, may be do to unorthodox structure :)
+- Entering some 2-param commands with one param breaks program
+- Limiting scope of commands in general needs to be solved
