@@ -48,7 +48,7 @@ export class Game{
 		this.voteThreshhold = this.players.length / 2;
 		console.log(this.voteThreshhold);
 		this.voteThreshhold = Math.ceil(this.voteThreshhold);
-		//this.botman
+		setTimeout(botman.noLynchMessage, 60000);
 	}
 
 	lynch(lynchID){
@@ -58,12 +58,13 @@ export class Game{
 		}
 		this.players.splice(i, 1);
 		this.voteThreshhold = this.players.length / 2;
-		this.lynchstatus = 1;
+		this.lynchstat = 1;
 		this.checkMafWin(); 
 	}
 
 	startNight(){
-		console.log("NIGHT TIME BABYYYYYYYYY");
+		this.time="NIGHT";
+		this.daycount++;
 	}
 
 	checkMafWin(){

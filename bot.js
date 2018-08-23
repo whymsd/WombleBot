@@ -75,11 +75,40 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             case 'showvotes':
                 voteList();
             break;
+            case 'kill':
+                if(newgame.time==="NIGHT"){
+                    //KILL ACTION
+                }
+                else{
+                    wrongPerms(channelID);
+                }
+            break;
+            case 'investigate':
+                if(newgame.time==="NIGHT"){
+                    //KILL ACTION
+                }
+                else{
+                    wrongPerms(channelID);
+                }
+            break;
+            case 'save':
+                if(newgame.time==="NIGHT"){
+                    //KILL ACTION
+                }
+                else{
+                    wrongPerms(channelID);
+                }
+            break;
         }
      }
 });
 
-
+function wrongPerms(cha){
+    bot.sendMessage({
+        to: cha,
+        message: "You do not have permission to perform this action!"
+    });
+}
 
 function makeGame(mode, entry, channelID){
     newgame = new Game(mode, entry, channelID);
@@ -269,5 +298,14 @@ exports.dayMessage = function(cha, day){
 }
 
 exports.noLynchMessage = function(cha){
-    //
+    if(!newgame.lynchstat){
+        bot.sendMessage({
+            to: newgame.gameChannel,
+            message: "DAY IS OVER! No consensus for a lynch was reached today!"
+        });
+        nightMessage();
+    }
+    else{
+        console.log("hell yeah we lynched");
+    }
 }
