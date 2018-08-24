@@ -4,6 +4,7 @@ var auth = require('.././auth.json');
 
 import { Game } from './game.js';
 import { Player } from './player.js';
+import { PlayerHolder } from './playerHolder.js';
 
 var newgame;
 var gameChannel;
@@ -47,20 +48,20 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             case 'chad':
                 bot.sendMessage({
                     to: channelID,
-                    message: "CHAD DETECTED! <@" + userID + "> is a chad!"
+                    message: "CHAD DETECTED! <@" + user + "> is a chad!"
                 });
             break;
             case 'newgame':
-                makeGame(args[1], userID, channelID);
+                makeGame(args[1], userID, user, channelID);
             break;
             case 'addme':
-                //addPlayer(userID, channelID); - ACTUAL CODE, PLEASE INCLUDE
-                setTimeout(function(){addPlayer(123, channelID)}, 1000);
-                setTimeout(function(){addPlayer(456, channelID)}, 2000);
-                setTimeout(function(){addPlayer(789, channelID)}, 3000);
-                setTimeout(function(){addPlayer(666, channelID)}, 4000);
-                setTimeout(function(){addPlayer(8, channelID)}, 6000);
-                setTimeout(function(){addPlayer(110, channelID)}, 7000);    
+                //addPlayer(userID, user, channelID); - ACTUAL CODE, PLEASE INCLUDE
+                setTimeout(function(){addPlayer(123, "Bot1", channelID)}, 1000);
+                setTimeout(function(){addPlayer(456, "Bot2", channelID)}, 2000);
+                setTimeout(function(){addPlayer(789, "Bot3", channelID)}, 3000);
+                setTimeout(function(){addPlayer(666, "Bot4", channelID)}, 4000);
+                setTimeout(function(){addPlayer(8, "Bot5", channelID)}, 6000);
+                setTimeout(function(){addPlayer(110, "Bot6", channelID)}, 7000);    
             break;
             /*case 'calctest':
                 var i;
@@ -77,8 +78,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             break;
             case 'kill':
                 if(newgame.time==="NIGHT"){
-                    var subj = idParse(args[1]);
-                    newgame.addAction("Mafia", userID, subj, 2); //GOES FIRST
+                    console.log("Killing " + args[1]);
+                    //var subj = idParse(args[1]);
+                    newgame.addAction("Mafioso", userID, args[1], 2); //GOES FIRST
                 }
                 else{
                     wrongPerms(channelID);
@@ -86,8 +88,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             break;
             case 'investigate':
                 if(newgame.time==="NIGHT"){
-                    var subj = idParse(args[1]);
-                    newgame.addAction("Detective", userID, subj, 3);
+                    console.log("Investigating " + args[1]);
+                    //var subj = idParse(args[1]);
+                    newgame.addAction("Detective", userID, args[1], 3);
                 }
                 else{
                     wrongPerms(channelID);
@@ -95,8 +98,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             break;
             case 'heal':
                 if(newgame.time==="NIGHT"){
-                    var subj = idParse(args[1]);
-                    newgame.addAction("Doctor", userID, subj, 1);
+                    console.log("Healing " + args[1]);
+                    //var subj = idParse(args[1]);
+                    newgame.addAction("Doctor", userID, args[1], 1);
                 }
                 else{
                     wrongPerms(channelID);
@@ -113,8 +117,8 @@ function wrongPerms(cha){
     });
 }
 
-function makeGame(mode, entry, channelID){
-    newgame = new Game(mode, entry, channelID);
+function makeGame(mode, entry, user, channelID){
+    newgame = new Game(mode, entry, user, channelID);
     gameChannel = channelID;
     bot.sendMessage({
         to: channelID,
@@ -123,11 +127,11 @@ function makeGame(mode, entry, channelID){
     printPlayerList(channelID);
 }
 
-function addPlayer(userID, channelID){
+function addPlayer(userID, user, channelID){
     var exists = 0;
     var i = 0;
     for(i; i<newgame.playerIDs.length; i++){
-        if(newgame.playerIDs[i] == userID){
+        if(newgame.playerIDs[i].ID == userID){
             exists = 1;
         }
     }
@@ -138,7 +142,7 @@ function addPlayer(userID, channelID){
         });
     }
     else{
-        newgame.playerIDs.push(userID);
+        newgame.playerIDs.push(new PlayerHolder(userID, user));
     }
     printPlayerList(channelID);
     if(newgame.playerIDs.length == newgame.numberOfPlayers){
@@ -163,10 +167,10 @@ function genPlayerList(){
 }
 
 function printPlayerList(channelID){
-    var outie = "Current players: <@" + newgame.playerIDs[0] + ">";
+    var outie = "Current players: <@" + newgame.playerIDs[0].ID + ">";
     var i;
     for(i=1; i<newgame.playerIDs.length; i++){
-        outie += ", <@" + newgame.playerIDs[i] + ">";
+        outie += ", <@" + newgame.playerIDs[i].ID + ">";
     }
     bot.sendMessage({
         to: channelID,
@@ -285,7 +289,7 @@ exports.nightMessageEx = function(){
 }
 
 exports.introMessage = function(cha){
-    //console.log("sending intro message, " + cha);
+    console.log("sending intro message, " + cha);
     bot.sendMessage({
         to: cha,
         message: "Hello and welcome to Chadville! The citizens of the town have enjoyed a peaceful life, however in the darkness evil begins to stir as a local group of hooligans set out to take over the village..."
@@ -328,3 +332,8 @@ exports.genericPrint = function(cha, strIn){
         message: strIn
     });
 }
+
+/*exports.getUser = function(useID){
+    var thisUser = bot.users.get("id", useID);
+    return thisUser.username;
+}*/

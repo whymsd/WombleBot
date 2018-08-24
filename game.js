@@ -2,12 +2,14 @@ var botman = require('./bot.js');
 
 import { Player } from './player.js';
 import { Action } from './action.js';
+import { PlayerHolder } from './playerHolder.js';
 
 export class Game{
 
-	constructor(mode, entry, gameChannel){
+	constructor(mode, entryID, entryName, gameChannel){
 		this.mode = mode;
-		this.playerIDs = [entry];
+		this.playerIDs = [];
+		this.playerIDs.push(new PlayerHolder(entryID, entryName));
 		this.numberOfPlayers = 0;
 		if(mode == "standard"){
 			this.numberOfPlayers = 7;
@@ -35,12 +37,12 @@ export class Game{
 		var i;
 		for(i = 0; this.playerIDs.length>0; i++){
 			var j = Math.floor(Math.random() * (this.playerIDs.length));
-			this.players.push(new Player(this.playerIDs[0], this.roles[j], this.align[j]));
+			this.players.push(new Player(this.playerIDs[0].ID, this.roles[j], this.align[j], this.playerIDs[0].name));
 			this.playerIDs.splice(0, 1);
 			this.roles.splice(j, 1);
 			this.align.splice(j, 1);
 		}
-		//console.log(this.gameChannel);
+		console.log("Working on channel " + this.gameChannel);
 		setTimeout(botman.introMessage, 3000, this.gameChannel);
 		setTimeout(botman.dayMessage, 5000, this.gameChannel, this.daycount);
 	}
@@ -50,7 +52,7 @@ export class Game{
 		this.lynchstat = 0;
 		this.actions=[];
 		this.voteThreshhold = this.players.length / 2;
-		console.log(this.voteThreshhold);
+		//console.log(this.voteThreshhold);
 		this.voteThreshhold = Math.ceil(this.voteThreshhold);
 		setTimeout(botman.noLynchMessage, 60000, this.lynchstat);
 	}
@@ -100,8 +102,10 @@ export class Game{
 			}
 		}
 		//console.log("Adding action type " + act);
-		var index = findPlayer(user);
-		if(this.players[index].ID === type){
+		var index = this.findPlayer(user);
+		console.log("Comparing role " + this.players[index].role + " to action " + act);
+		if(this.players[index].role === act){
+			console.log("Pushing this action to the stack");
 			this.actions.push(new Action(act, user, subj, prio));
 		}
 		else{
@@ -110,7 +114,8 @@ export class Game{
 	}
 
 	actionResolve(){
-		var i;
+		console.log("Actions undertaken: " + this.actions.length);
+		var i = 0;
 		var j;
 		for (i = 0; i < (this.actions.length - 1); i++){
 			for(j = 1; j < this.actions.length; j++){
@@ -133,6 +138,18 @@ export class Game{
 				break;
 			}
 		}
+		var doing = this.actions[i].type;
+			switch(doing){
+				case 'Mafia':
+						console.log("SNEAKY SNEAKY");
+				break;
+				case 'Detective':
+						console.log("WHODUNNIT");
+				break;
+				case 'Doctor':
+						console.log("VALKYRIE ONLINE");
+				break;
+			}
 		setTimeout(botman.dayMessage, 30000, this.gameChannel, this.daycount);
 	}
 

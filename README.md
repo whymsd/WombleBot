@@ -5,7 +5,6 @@ Little Discord bot I'm going to try work on. Plays Mafia (or it will when it wor
 
 ### LIST OF TASKS TODO:
 Immediate
-- NOT WORKING: Fix PM's to CHAD with actions (will likely require player class overhaul zzz)
 - Implement night action effects on game state
 - Sort win conditions
 
