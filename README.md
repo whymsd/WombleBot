@@ -5,12 +5,11 @@ Little Discord bot I'm going to try work on. Plays Mafia (or it will when it wor
 
 ### LIST OF TASKS TODO:
 Immediate
-- Implement night action effects on game state
 - Sort win conditions
-
-Long-term
 - Chat perms for players (voice and text)
 - Error checking (List below)
+
+Long-term
 - Get people to test!
 - Add a suicide command
 - Reform mafia kill selection
@@ -25,3 +24,4 @@ Errors/Issues:
 - Sometimes the program ints randomly, may be do to unorthodox structure :)
 - Entering some 2-param commands with one param breaks program
 - Limiting scope of commands in general needs to be solved, eg: starting a new game when current game is in progress
+- Need more console logs so I have the full story before every error

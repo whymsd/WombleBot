@@ -23,6 +23,8 @@ export class Game{
 		this.voteThreshhold = 0;
 		this.lynchstat = 0;
 		this.actions = [];
+		this.ogPlayers = [];
+		this.gameStatus = 1;
 	}
 
 	startGame(){
@@ -40,6 +42,7 @@ export class Game{
 			this.roles.splice(j, 1);
 			this.align.splice(j, 1);
 		}
+		this.ogPlayers = this.players.slice();
 		setTimeout(botman.introMessage, 3000, this.gameChannel);
 		setTimeout(botman.dayMessage, 5000, this.gameChannel, this.daycount);
 	}
@@ -68,7 +71,9 @@ export class Game{
 		this.voteThreshhold = this.players.length / 2;
 		this.lynchstat = 1;
 		this.checkMafWin();
-		setTimeout(botman.nightMessageEx, 5000); 
+		if(this.gameStatus == 1){
+			setTimeout(botman.nightMessageEx, 5000); 
+		}
 	}
 
 	startNight(){
@@ -87,10 +92,12 @@ export class Game{
 			}
 		}
 		if(counter >= this.voteThreshhold){
-			// EXECUTE MAFIA VICTORY
+			this.gameStatus = 0;
+			this.showWinners("Mafia");
 		}
-		else{
-			//console.log("Maf count = " + counter);
+		else if(counter == 0){
+			this.gameStatus = 0;
+			this.showWinners("Town");
 		}
 	}
 
@@ -135,7 +142,10 @@ export class Game{
 			this.actionExecution(this.actions[i]);
 			this.mafKill();
 		}
-		setTimeout(botman.dayMessage, 5000, this.gameChannel, this.daycount);
+		this.checkMafWin();
+		if(this.gameStatus == 1){
+			setTimeout(botman.dayMessage, 5000, this.gameChannel, this.daycount);
+		}
 	}
 
 	findPlayer(id){
@@ -196,6 +206,7 @@ export class Game{
 	}
 
 	mafKill(){
+		console.log("We went to kill");
 		var i;
 		var killed = [0];
 		for(i = 1; i < this.players.length; i++){
@@ -208,6 +219,7 @@ export class Game{
 		}
 		var a = Math.floor(Math.random() * (killed.length));
 		var b = killed[a];
+		console.log("Killing " + this.players[b].name);
 		if(this.players[b].votes > 0){
 			for(i = 0; i < this.players.length; i++){
 				if(this.players[i].role === "Mafioso"){
@@ -222,6 +234,17 @@ export class Game{
 				this.players.splice(b, 1);
 			}
 		}
+	}
+
+	showWinners(team){
+		var winMsg = "THE GAME HAS ENDED!\nThe winning faction is the " + team + "!";
+		var i;
+		for(i = 0; i = this.ogPlayers.length; i++){
+			if(this.ogPlayers[i].align === team){
+				winMsg += "\n<@" + this.ogPlayers[i].ID + ">";
+			}
+		}
+		botman.genericPrint(this.gameChannel, winMsg);
 	}
 
 }
