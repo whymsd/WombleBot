@@ -48,20 +48,23 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             case 'chad':
                 bot.sendMessage({
                     to: channelID,
-                    message: "CHAD DETECTED! <@" + user + "> is a chad!"
+                    message: "CHAD DETECTED! <@" + userID + "> is a chad!"
                 });
             break;
             case 'newgame':
                 makeGame(args[1], userID, user, channelID);
             break;
             case 'addme':
+                addPlayer(userID, user, channelID);   
+            break;
+            case 'addbots':
                 //addPlayer(userID, user, channelID); - ACTUAL CODE, PLEASE INCLUDE
                 setTimeout(function(){addPlayer(123, "Bot1", channelID)}, 1000);
                 setTimeout(function(){addPlayer(456, "Bot2", channelID)}, 2000);
                 setTimeout(function(){addPlayer(789, "Bot3", channelID)}, 3000);
                 setTimeout(function(){addPlayer(666, "Bot4", channelID)}, 4000);
                 setTimeout(function(){addPlayer(8, "Bot5", channelID)}, 6000);
-                setTimeout(function(){addPlayer(110, "Bot6", channelID)}, 7000);    
+                //setTimeout(function(){addPlayer(110, "Bot6", channelID)}, 7000);    
             break;
             /*case 'calctest':
                 var i;
@@ -105,6 +108,12 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 else{
                     wrongPerms(channelID);
                 }
+            break;
+            case 'commands':
+                bot.sendMessage({
+                    to: channelID,
+                    message: "```!sup = Get a welcome message.\n!chad = Activate ChadBot's Chad Radar/\n!newgame <insert game type here> = Create a new game of mafia.\n-- Game types: standard\n!addme = Add yourself to the current mafia game.\n!vote <Player> = Vote for a player in Mafia.\n!showvotes = Show the number of votes on each player.\n!kill <Player> = Vote to kill the player (Mafia only; Do not use @ tag for this command).\n!investigate <Player> = Reveal the selected player's alignment (Detective only; Do not use @ tag for this command).\n!heal <Player> = Heal the selected player (Doctor only; Do not use @ tag for this command).```"
+                });
             break;
         }
      }
@@ -200,6 +209,7 @@ function voteHandler(voteID, votetag){
     function getPlayer(mp){
         return mp.ID === voteID;
     }
+    console.log(votetag);
     var voter = newgame.players.find(getPlayer);
     if (voter.vote!=0){
         voteID = voter.vote;
@@ -209,6 +219,7 @@ function voteHandler(voteID, votetag){
     voteID = idParse(votetag);
     voter.vote = voteID;
     var votedPlayer = newgame.players.find(getPlayer);
+    console.log(votedPlayer.ID);
     votedPlayer.votes++;
     bot.sendMessage({
         to: gameChannel,

@@ -12,7 +12,4 @@ export class Action{
 		//console.log("PLAYER ADDED: " + this.ID + ", " + this.role);
 	}
 
-	voting(v){
-		//vote = 
-	}
 }

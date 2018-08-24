@@ -12,14 +12,16 @@ Long-term
 - Chat perms for players (voice and text)
 - Error checking (List below)
 - Get people to test!
+- Add a suicide command
+- Reform mafia kill selection
 
 Test state changes I will have to revert:
 - !addme currently adds a bunch of meaningless tags, want to return this to the "add player" function
 - game timers too short
 - Have to stop votes from stacking
+- Prevent users from voting for themselves
 
 Errors/Issues:
-- Reset votes every day (ABSOLUTE STRESS)
 - Sometimes the program ints randomly, may be do to unorthodox structure :)
 - Entering some 2-param commands with one param breaks program
-- Limiting scope of commands in general needs to be solved
+- Limiting scope of commands in general needs to be solved, eg: starting a new game when current game is in progress

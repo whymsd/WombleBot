@@ -8,10 +8,10 @@ export class Player{
 		this.status = 0; //ALIVE
 		this.vote = 0;
 		this.votes = 0; 
-		//console.log("PLAYER ADDED: " + this.ID + ", " + this.role);
+		console.log("PLAYER RECORDED: " + this.ID + ", " + this.role + ", " + this.align + ", " + this.name);
 	}
 
-	voting(v){
-		//vote = 
+	playerLog(){
+		console.log("PLAYER ADDED: " + this.ID + ", " + this.role + ", " + this.align + ", " + this.name);
 	}
 }
