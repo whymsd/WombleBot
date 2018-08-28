@@ -24,10 +24,11 @@ export class Game{
 		this.lynchstat = 0;
 		this.actions = [];
 		this.ogPlayers = [];
-		this.gameStatus = 1;
+		this.gameStatus = -1;
 	}
 
 	startGame(){
+		this.gameStatus = 1;
 		switch(this.mode){
 			case 'standard':
 				this.roles=["Doctor", "Detective", "Mafioso", "Mafioso", "Villager", "Villager", "Villager"];

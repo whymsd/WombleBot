@@ -37,8 +37,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         //var target = args[1];
         args.splice(0, 1);
         var argStr = args.join((' '));
-       
-        //args = args.splice(1);
+
         switch(cmd) {
             // !ping
             case 'sup':
@@ -60,10 +59,32 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 });
             break;
             case 'newgame':
-                makeGame(argStr, userID, user, channelID);
+                if(typeof(newgame)=="undefined" || newgame.gameStatus == 0){
+                    makeGame(argStr, userID, user, channelID);
+                }
+                else{
+                    bot.sendMessage({
+                        to: channelID,
+                        message: "Cannot create game while existing game is already in progress."
+                    });
+                }
             break;
             case 'addme':
-                addPlayer(userID, user, channelID);   
+                if(typeof(newgame)=="undefined" || newgame.gameStatus == 0){
+                    bot.sendMessage({
+                        to: channelID,
+                        message: "ERROR: No current game for player to join."
+                    });
+                }
+                else if(newgame.gameStatus == 1){
+                    bot.sendMessage({
+                        to: channelID,
+                        message: "Game is full, player cannot be added."
+                    });
+                }
+                else{
+                    addPlayer(userID, user, channelID);
+                }   
             break;
             case 'addbots':
                 setTimeout(function(){addPlayer(123, "Bot1", channelID)}, 1000);
@@ -71,49 +92,72 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                 setTimeout(function(){addPlayer(789, "Bot3", channelID)}, 3000);
                 setTimeout(function(){addPlayer(666, "Bot4", channelID)}, 4000);
                 setTimeout(function(){addPlayer(8, "Bot5", channelID)}, 6000);
-                setTimeout(function(){addPlayer(110, "Bot6", channelID)}, 7000);    
+                setTimeout(function(){addPlayer(110, "Bot6", channelID)}, 7000);
             break;
-            case 'vote':
+            /*case 'vote':
                 voteHandler(userID, argStr);
             break;
             case 'showvotes':
                 voteList();
-            break;
-            case 'kill':
-                if(newgame.time==="NIGHT"){
-                    console.log("Killing " + argStr);
-                    //var subj = idParse(args[1]);
-                    newgame.addAction("Mafioso", userID, argStr, 2); //GOES FIRST
-                }
-                else{
-                    wrongPerms(channelID);
-                }
-            break;
-            case 'investigate':
-                if(newgame.time==="NIGHT"){
-                    console.log("Investigating " + argStr);
-                    //var subj = idParse(args[1]);
-                    newgame.addAction("Detective", userID, argStr, 3);
-                }
-                else{
-                    wrongPerms(channelID);
-                }
-            break;
-            case 'heal':
-                if(newgame.time==="NIGHT"){
-                    console.log("Healing " + argStr);
-                    //var subj = idParse(args[1]);
-                    newgame.addAction("Doctor", userID, argStr, 1);
-                }
-                else{
-                    wrongPerms(channelID);
-                }
-            break;
+            break;*/
+            
             case 'commands':
                 bot.sendMessage({
                     to: channelID,
                     message: "```!sup = Get a welcome message.\n!echo = Have ChadBot repeat what you just said.\n!chad = Activate ChadBot's Chad Radar/\n!newgame <insert game type here> = Create a new game of mafia.\n!addme = Add yourself to the current mafia game.\n!vote <Player> = Vote to lynch a player.\n!showvotes = Show the number of votes on each player.\n!kill <Player> = Vote to kill the player (Mafia only; Do not use @ tag for this command).\n!investigate <Player> = Reveal the selected player's alignment (Detective only; Do not use @ tag for this command).\n!heal <Player> = Heal the selected player (Doctor only; Do not use @ tag for this command).```"
                 });
+            break;
+            default:
+                if(newgame.status == 1){
+                    switch(cmd){
+                        case 'vote':
+                            if(newgame.time === "DAY"){
+                                voteHandler(userID, argStr);
+                            }
+                            else{
+                                genericPrintInt(channelID, "You cannot perform this action at night time.");
+                            }
+                        break;
+                        case 'showvotes':
+                            if(newgame.time === "DAY"){
+                                voteList();
+                            }
+                            else{
+                                genericPrintInt(channelID, "You cannot perform this action at night time.");
+                            }
+                        break;
+                        case 'kill':
+                            if(newgame.time==="NIGHT"){
+                                console.log("Killing " + argStr);
+                                //var subj = idParse(args[1]);
+                                newgame.addAction("Mafioso", userID, argStr, 2); //GOES FIRST
+                            }
+                            else{
+                                wrongPerms(channelID);
+                            }
+                        break;
+                        case 'investigate':
+                            if(newgame.time==="NIGHT"){
+                                console.log("Investigating " + argStr);
+                                //var subj = idParse(args[1]);
+                                newgame.addAction("Detective", userID, argStr, 3);
+                            }
+                            else{
+                                wrongPerms(channelID);
+                            }
+                        break;
+                        case 'heal':
+                            if(newgame.time==="NIGHT"){
+                                console.log("Healing " + argStr);
+                                //var subj = idParse(args[1]);
+                                newgame.addAction("Doctor", userID, argStr, 1);
+                            }
+                            else{
+                                wrongPerms(channelID);
+                            }
+                        break;
+                    }
+                }
             break;
         }
      }
@@ -189,12 +233,22 @@ function printPlayerList(channelID){
 
 function giveRoles(){
     var i;
+    var maf = [];
+    var maflist = "The Mafia for this game are:";
     for(i = 0; i < newgame.players.length; i++){
         bot.sendMessage({
             to: newgame.players[i].ID,
             message: "Your role for this game is " + newgame.players[i].role + "! Your alignment is with the " + newgame.players[i].align + "!"
         });
+        if(newgame.players[i].align === "Mafia"){
+            maf.push(i);
+            maflist += ("\n<@" + newgame.players[i].ID + ">");
+        }
     }
+    for(i = 0; i < maf.length; i++){
+        genericPrintInt(newgame.players[maf[i]].ID, maflist);
+    }
+
 }
 
 function idParse(tag){
@@ -343,11 +397,15 @@ exports.actionCaller = function(){
     newgame.actionResolve();
 }
 
-exports.genericPrint = function(cha, strIn){
+function genericPrintInt(cha, strIn){
     bot.sendMessage({
         to: cha,
         message: strIn
     });
+}
+
+exports.genericPrint = function(cha, strIn){
+    genericPrintInt(cha, strIn);
 }
 
 /*exports.getUser = function(useID){
