@@ -35,6 +35,8 @@ bot.on('message', function (user, userID, channelID, message, evt) {
         var args = message.substring(1).split(' ');
         var cmd = args[0];
         //var target = args[1];
+        args.splice(0, 1);
+        var argStr = args.join((' '));
        
         //args = args.splice(1);
         switch(cmd) {
@@ -42,7 +44,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             case 'sup':
                 bot.sendMessage({
                     to: channelID,
-                    message: 'welcome my dude'
+                    message: 'What is up, my dude. I am ChadBot, the big dog of this server. Type "!commands" to find out what I can do.'
                 });
             break;
             case 'chad':
@@ -51,39 +53,37 @@ bot.on('message', function (user, userID, channelID, message, evt) {
                     message: "CHAD DETECTED! <@" + userID + "> is a chad!"
                 });
             break;
+            case 'echo':
+                bot.sendMessage({
+                    to: channelID,
+                    message: argStr
+                });
+            break;
             case 'newgame':
-                makeGame(args[1], userID, user, channelID);
+                makeGame(argStr, userID, user, channelID);
             break;
             case 'addme':
                 addPlayer(userID, user, channelID);   
             break;
             case 'addbots':
-                //addPlayer(userID, user, channelID); - ACTUAL CODE, PLEASE INCLUDE
                 setTimeout(function(){addPlayer(123, "Bot1", channelID)}, 1000);
                 setTimeout(function(){addPlayer(456, "Bot2", channelID)}, 2000);
                 setTimeout(function(){addPlayer(789, "Bot3", channelID)}, 3000);
-                //setTimeout(function(){addPlayer(666, "Bot4", channelID)}, 4000);
-                //setTimeout(function(){addPlayer(8, "Bot5", channelID)}, 6000);
-                //setTimeout(function(){addPlayer(110, "Bot6", channelID)}, 7000);    
+                setTimeout(function(){addPlayer(666, "Bot4", channelID)}, 4000);
+                setTimeout(function(){addPlayer(8, "Bot5", channelID)}, 6000);
+                setTimeout(function(){addPlayer(110, "Bot6", channelID)}, 7000);    
             break;
-            /*case 'calctest':
-                var i;
-                for(i =0; i < 10; i++){
-                    var j = Math.floor(Math.random() * 7);
-                    console.log(j);
-                }
-            break;*/
             case 'vote':
-                voteHandler(userID, args[1]);
+                voteHandler(userID, argStr);
             break;
             case 'showvotes':
                 voteList();
             break;
             case 'kill':
                 if(newgame.time==="NIGHT"){
-                    console.log("Killing " + args[1]);
+                    console.log("Killing " + argStr);
                     //var subj = idParse(args[1]);
-                    newgame.addAction("Mafioso", userID, args[1], 2); //GOES FIRST
+                    newgame.addAction("Mafioso", userID, argStr, 2); //GOES FIRST
                 }
                 else{
                     wrongPerms(channelID);
@@ -91,9 +91,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             break;
             case 'investigate':
                 if(newgame.time==="NIGHT"){
-                    console.log("Investigating " + args[1]);
+                    console.log("Investigating " + argStr);
                     //var subj = idParse(args[1]);
-                    newgame.addAction("Detective", userID, args[1], 3);
+                    newgame.addAction("Detective", userID, argStr, 3);
                 }
                 else{
                     wrongPerms(channelID);
@@ -101,9 +101,9 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             break;
             case 'heal':
                 if(newgame.time==="NIGHT"){
-                    console.log("Healing " + args[1]);
+                    console.log("Healing " + argStr);
                     //var subj = idParse(args[1]);
-                    newgame.addAction("Doctor", userID, args[1], 1);
+                    newgame.addAction("Doctor", userID, argStr, 1);
                 }
                 else{
                     wrongPerms(channelID);
@@ -112,7 +112,7 @@ bot.on('message', function (user, userID, channelID, message, evt) {
             case 'commands':
                 bot.sendMessage({
                     to: channelID,
-                    message: "```!sup = Get a welcome message.\n!chad = Activate ChadBot's Chad Radar/\n!newgame <insert game type here> = Create a new game of mafia.\n-- Game types: standard\n!addme = Add yourself to the current mafia game.\n!vote <Player> = Vote to lynch a player.\n!showvotes = Show the number of votes on each player.\n!kill <Player> = Vote to kill the player (Mafia only; Do not use @ tag for this command).\n!investigate <Player> = Reveal the selected player's alignment (Detective only; Do not use @ tag for this command).\n!heal <Player> = Heal the selected player (Doctor only; Do not use @ tag for this command).```"
+                    message: "```!sup = Get a welcome message.\n!echo = Have ChadBot repeat what you just said.\n!chad = Activate ChadBot's Chad Radar/\n!newgame <insert game type here> = Create a new game of mafia.\n!addme = Add yourself to the current mafia game.\n!vote <Player> = Vote to lynch a player.\n!showvotes = Show the number of votes on each player.\n!kill <Player> = Vote to kill the player (Mafia only; Do not use @ tag for this command).\n!investigate <Player> = Reveal the selected player's alignment (Detective only; Do not use @ tag for this command).\n!heal <Player> = Heal the selected player (Doctor only; Do not use @ tag for this command).```"
                 });
             break;
         }
@@ -209,35 +209,41 @@ function voteHandler(voteID, votetag){
     function getPlayer(mp){
         return mp.ID === voteID;
     }
-    console.log(votetag);
     var voter = newgame.players.find(getPlayer);
     if (voter.vote!=0){
         voteID = voter.vote;
         var unvote = newgame.players.find(getPlayer);
-        //unvote.votes--;                                   PLEASE FIX THIS TO MAKE SURE VOTES WORK!
+        unvote.votes--;                                   
     }
     voteID = idParse(votetag);
     voter.vote = voteID;
     var votedPlayer = newgame.players.find(getPlayer);
-    console.log(votedPlayer.ID);
-    votedPlayer.votes++;
-    bot.sendMessage({
-        to: gameChannel,
-        message: "<@" + voter.ID + "> has voted for <@" + votedPlayer.ID +  ">! Number of votes on <@" + votedPlayer.ID +  ">: " + votedPlayer.votes
-    });
-    if(votedPlayer.votes >= newgame.voteThreshhold){
+    if(typeof(votedPlayer)=="undefined"){
         bot.sendMessage({
             to: gameChannel,
-            message: "<@" + votedPlayer.ID +  "> now exceeds the number of votes needed for a lynch, and will be lynched!\n<@" + votedPlayer.ID + "> is brought into the centre of the town square. As they are executed by their fellow citizens, their role was revealed to be..."
+            message: "Your vote was for a player not currently in the game!"
         });
-        setTimeout(function(){
+    }
+    else{
+        votedPlayer.votes++;
+        bot.sendMessage({
+            to: gameChannel,
+            message: "<@" + voter.ID + "> has voted for <@" + votedPlayer.ID +  ">! Number of votes on <@" + votedPlayer.ID +  ">: " + votedPlayer.votes
+        });
+        if(votedPlayer.votes >= newgame.voteThreshhold){
             bot.sendMessage({
                 to: gameChannel,
-                message: votedPlayer.role + "!"
+                message: "<@" + votedPlayer.ID +  "> now exceeds the number of votes needed for a lynch, and will be lynched!\n<@" + votedPlayer.ID + "> is brought into the centre of the town square. As they are executed by their fellow citizens, their role was revealed to be..."
             });
-        }, 2000);
-        newgame.lynch(voteID);
-        //setTimeout(nightMessage, 5000);
+            setTimeout(function(){
+                bot.sendMessage({
+                    to: gameChannel,
+                    message: votedPlayer.role + "!"
+                });
+            }, 2000);
+            newgame.lynch(voteID);
+            //setTimeout(nightMessage, 5000);
+        }
     }
 }
 

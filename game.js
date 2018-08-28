@@ -113,14 +113,21 @@ export class Game{
 		}
 		//console.log("Adding action type " + act);
 		var index = this.findPlayer(user);
-		if(this.players[index].role === act){
-			console.log("Comparing role " + this.players[index].role + " to action " + act);
-			botman.genericPrint(user, "Action recorded. Any previous action has been overwritten.");
-			this.actions.push(new Action(act, user, subj, prio));
-		}
+		var check = this.findByName(subj);
+		console.log(check);
+		console.log("Full class: " + this.players[check]);
+		//console.log("Just name: " + this.players[check].name);
 		if(this.players[index].role != act){
 			console.log("We got here, you can't do this");
 			botman.genericPrint(user, "Your role cannot perform that action!")
+		}
+		else if(typeof(this.players[check])=="undefined"){
+			botman.genericPrint(user, "Subject of this action was not found! Make sure that the person is still alive, and that you did not put an @ in front of their name.");
+		}
+		else{
+			console.log("Comparing role " + this.players[index].role + " to action " + act);
+			botman.genericPrint(user, "Action recorded. Any previous action has been overwritten.");
+			this.actions.push(new Action(act, user, subj, prio));
 		}
 	}
 
